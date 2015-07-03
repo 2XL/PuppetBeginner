@@ -1,0 +1,84 @@
+#!/bin/bash
+
+
+function help (){
+
+	cat <<- HIW
+
+	how it works: 
+
+	RESOURCE {
+		NAME :
+			ATTRIBUTE => VALUE
+	}
+
+	RESOURCE: type of resource you are declaring
+	NAME: unique identifier that distinguishes this instance of the resource from any other puppet knows about
+	ATTRIBUTE-VALUE: key value
+
+	to have puppet read a manifest :all: current directory ->
+
+	ls *.pp | while read x; do puppet apply $x; done
+
+	HIW
+		
+}
+
+function site(){
+	echo 'Create site.pp'
+
+	cat > $1 <<- EOM
+
+	file {
+		'/tmp/hello' :
+		content => "Hello, World!\n"
+	}
+
+	EOM
+}
+
+function motd(){
+	echo 'Create custom.pp'
+
+	cat > $1 <<- EOM
+
+	file {
+		'/etc/motd' :
+		content => "
+	---------------------------------------------------------------
+	Welcome to Ubuntu 12.04 LTS (GNU/Linux 3.2.0-23-generic x86_64)
+	---------------------------------------------------------------
+	"
+	}
+
+	EOM
+}
+
+function nodes(){
+	echo 'Create nodes.pp'
+
+	echo '' > $1
+	for i in $(seq 1 $2);
+	do
+	cat >> $1 <<- EOM
+	node "slave$i" {
+		file{
+			'/tmp/hello' :
+				content => "Hello, World!\n
+				I'm slave$i!"
+		}
+	}
+	EOM
+	done
+
+}
+
+if [ $# -eq 1 ]; then
+	echo 'Puppet Apply!'
+	ls *.pp | while read x; do puppet apply $x; done
+else
+	echo 'Puppet Build...'
+	site site.pp
+	motd custom.pp
+	nodes nodes.pp 2 # 2 nodes
+fi
