@@ -55,23 +55,68 @@ function motd(){
 }
 
 function nodes(){
+
 	echo 'Create nodes.pp'
+
+	echo 'Slave Node Configuration'
 
 	echo '' > $1
 	for i in $(seq 1 $2);
 	do
 	cat >> $1 <<- EOM
-	node "slave$i" {
+	node 'slave$i' {
 		file{
 			'/tmp/hello' :
 				content => "Hello, World!\n
 				I'm slave$i!"
 		}
+		package{
+			'nginx' :
+			ensure => installed
+		}
+		package{
+			'git' :
+			ensure => installed
+		}
 	}
 	EOM
 	done
 
+	echo 'Master NODE configuration'
+
+	cat >> $1 <<- EOM
+	\$packages = ['w3m', 'puppet-lint', 'git']
+	node 'precise64' {
+		file{
+			'/tmp/hello' :
+				content => "Hello, World!\n
+				I'm precise64!"
+		}
+		package{
+			'nginx' :
+			ensure => installed
+		}
+		package{
+			\$packages: ensure => installed
+		}
+		package{
+			'puppet' :
+			ensure => latest
+		}
+	}
+	EOM
+
 }
+
+
+function importar(){ 
+	echo "Create $1 include manifest/$2" 
+	 
+ 	echo include "'$2'" > $1 
+	  
+}
+
+
 
 if [ $# -eq 1 ]; then
 	echo 'Puppet Apply!'
@@ -81,4 +126,8 @@ else
 	site site.pp
 	motd custom.pp
 	nodes nodes.pp 2 # 2 nodes
+	importar isite.pp nodes.pp
+
+	ls *.pp | while read x; do puppet apply $x; done
+
 fi
