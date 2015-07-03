@@ -116,6 +116,13 @@ function importar(){
 	  
 }
 
+function default(){
+	echo "Create default.pp include ${$[@]}"
+
+	echo '' > default.pp
+	echo include "etc" > default.pp
+
+}
 
 
 if [ $# -eq 1 ]; then

@@ -9,6 +9,10 @@ package{
 'nginx' :
 ensure => installed
 }
+package{
+'git' :
+ensure => installed
+}
 }
 node 'slave2' {
 file{
@@ -20,8 +24,12 @@ package{
 'nginx' :
 ensure => installed
 }
+package{
+'git' :
+ensure => installed
 }
-$packages = ['w3m', 'puppet-lint']
+}
+$packages = ['w3m', 'puppet-lint', 'git']
 node 'precise64' {
 file{
 '/tmp/hello' :

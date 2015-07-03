@@ -5,7 +5,7 @@
 
 
 
-echo 'Scripts'
+echo Scripts $0 $1
 
 
 
@@ -34,6 +34,8 @@ function build() {
 	echo "  $vm.vm.provision :shell, :path => \"manifests/manifest\"" >> Vagrantfile
 	echo " end" >> Vagrantfile
 
+	# recompile the manifests and each of them import isite.pp or whatever
+	# default.pp
 	# slave nodes
 	for i in $(seq 1 $1);
 	do
@@ -41,7 +43,6 @@ function build() {
 			echo " config.vm.define :$vm do |$vm|" >> Vagrantfile
 			echo "  $vm.vm.box = '$2'" >> Vagrantfile
 			echo "  $vm.vm.provision :shell, :inline => \"apt-get update\""  >> Vagrantfile
-			echo "  $vm.vm.provision :shell, :inline => \"sudo manifests/manifest\"" >> Vagrantfile
 			echo "  $vm.vm.provision :puppet do |puppet|"  >> Vagrantfile
 			echo "   puppet.manifests_path = \"manifests\""  >> Vagrantfile
 			echo "   puppet.manifest_file = \"isite.pp\""  >> Vagrantfile
